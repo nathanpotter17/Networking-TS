@@ -3,6 +3,7 @@ import * as common from "./common.mjs";
 import type { Player, Event } from "./common.mjs";
 
 const SERVER_FPS = 30;
+const SERVER_LIMIT = 100;
 
 const wss = new WebSocketServer({ port: common.PORT }); // 3031
 
@@ -16,16 +17,31 @@ interface PlayerWithSocket extends Player {
 
 const players = new Map<number, PlayerWithSocket>();
 
+function randomStyle() {
+  return `hsl(${Math.random() * 360}, 80%, 50%)`;
+}
+
 wss.on("connection", (ws) => {
+  if (players.size >= SERVER_LIMIT) {
+    ws.close();
+    return;
+  }
   const id = idCounter++;
   const x = Math.random() * common.WORLD_WIDTH;
   const y = Math.random() * common.WORLD_HEIGHT;
+  const style = randomStyle();
   const player = {
     id,
     x,
     y,
     ws,
-    moving: common.DEFAULT_MOVING,
+    moving: {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+    },
+    style: style,
   };
 
   players.set(id, player);
@@ -35,6 +51,7 @@ wss.on("connection", (ws) => {
     id: player.id,
     x: player.x,
     y: player.y,
+    style: player.style,
   });
 
   ws.addEventListener("message", (event) => {
@@ -88,6 +105,7 @@ function tick() {
                 id: otherPlayer.id,
                 x: otherPlayer.x,
                 y: otherPlayer.y,
+                style: otherPlayer.style,
               })
             );
             if (otherPlayer.id !== joinedPlayer.id) {
@@ -97,6 +115,7 @@ function tick() {
                   id: joinedPlayer.id,
                   x: joinedPlayer.x,
                   y: joinedPlayer.y,
+                  style: joinedPlayer.style,
                 })
               );
             }

@@ -3,12 +3,6 @@ export const WORLD_WIDTH = 800;
 export const WORLD_HEIGHT = 600;
 export const PLAYER_SIZE = 30;
 export const PLAYER_SPEED = 500;
-export const DEFAULT_MOVING = {
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-};
 export const DIRECTION_VECTORS = {
     left: { x: -1, y: 0 },
     right: { x: 1, y: 0 },
@@ -16,10 +10,13 @@ export const DIRECTION_VECTORS = {
     down: { x: 0, y: 1 },
 };
 function isDirection(arg) {
-    return DEFAULT_MOVING[arg] !== undefined;
+    return DIRECTION_VECTORS[arg] !== undefined;
 }
 export function isNumber(arg) {
     return typeof arg === "number";
+}
+export function isString(arg) {
+    return typeof arg === "string";
 }
 export function isBoolean(arg) {
     return typeof arg === "boolean";
@@ -32,7 +29,8 @@ export function isPlayerJoined(arg) {
         arg.kind === "PlayerJoined" &&
         isNumber(arg.id) &&
         isNumber(arg.x) &&
-        isNumber(arg.y));
+        isNumber(arg.y) &&
+        isString(arg.style));
 }
 export function isPlayerLeft(arg) {
     return arg && arg.kind === "PlayerLeft" && isNumber(arg.id);
@@ -56,6 +54,9 @@ export function isPlayerMoving(arg) {
 //     isNumber(arg.y) &&
 //     isBoolean(arg.start) &&
 //     isBoolean(arg.direction)
+export function modulus(a, b) {
+    return ((a % b) + b) % b;
+}
 export function updatePlayer(player, deltaTime) {
     let dir;
     let dx = 0;
@@ -66,7 +67,7 @@ export function updatePlayer(player, deltaTime) {
             dy += DIRECTION_VECTORS[dir].y;
         }
     }
-    player.x += dx * PLAYER_SPEED * deltaTime;
-    player.y += dy * PLAYER_SPEED * deltaTime;
+    player.x = modulus(player.x + dx * PLAYER_SPEED * deltaTime, WORLD_WIDTH);
+    player.y = modulus(player.y + dy * PLAYER_SPEED * deltaTime, WORLD_HEIGHT);
 }
 //# sourceMappingURL=common.mjs.map

@@ -3,12 +3,6 @@ export const WORLD_WIDTH = 800;
 export const WORLD_HEIGHT = 600;
 export const PLAYER_SIZE = 30;
 export const PLAYER_SPEED = 500;
-export const DEFAULT_MOVING = {
-  left: false,
-  right: false,
-  up: false,
-  down: false,
-};
 
 export type Vector2 = { x: number; y: number };
 
@@ -28,7 +22,7 @@ export type Moving = {
 };
 
 function isDirection(arg: any): arg is Direction {
-  return DEFAULT_MOVING[arg as Direction] !== undefined;
+  return DIRECTION_VECTORS[arg as Direction] !== undefined;
 }
 
 export interface Player {
@@ -36,6 +30,7 @@ export interface Player {
   x: number;
   y: number;
   moving: Moving;
+  style: string;
 }
 
 export interface Hello {
@@ -45,6 +40,10 @@ export interface Hello {
 
 export function isNumber(arg: any): arg is number {
   return typeof arg === "number";
+}
+
+export function isString(arg: any): arg is number {
+  return typeof arg === "string";
 }
 
 export function isBoolean(arg: any): arg is boolean {
@@ -60,6 +59,7 @@ export interface PlayerJoined {
   id: number;
   x: number;
   y: number;
+  style: string;
 }
 
 export function isPlayerJoined(arg: any): arg is PlayerJoined {
@@ -68,7 +68,8 @@ export function isPlayerJoined(arg: any): arg is PlayerJoined {
     arg.kind === "PlayerJoined" &&
     isNumber(arg.id) &&
     isNumber(arg.x) &&
-    isNumber(arg.y)
+    isNumber(arg.y) &&
+    isString(arg.style)
   );
 }
 
@@ -122,6 +123,10 @@ export function isPlayerMoving(arg: any): arg is PlayerMoving {
 //     isBoolean(arg.start) &&
 //     isBoolean(arg.direction)
 
+export function modulus(a: number, b: number): number {
+  return ((a % b) + b) % b;
+}
+
 export function updatePlayer(player: Player, deltaTime: number) {
   let dir: Direction;
   let dx = 0;
@@ -132,6 +137,6 @@ export function updatePlayer(player: Player, deltaTime: number) {
       dy += DIRECTION_VECTORS[dir].y;
     }
   }
-  player.x += dx * PLAYER_SPEED * deltaTime;
-  player.y += dy * PLAYER_SPEED * deltaTime;
+  player.x = modulus(player.x + dx * PLAYER_SPEED * deltaTime, WORLD_WIDTH);
+  player.y = modulus(player.y + dy * PLAYER_SPEED * deltaTime, WORLD_HEIGHT);
 }

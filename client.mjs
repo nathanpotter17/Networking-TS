@@ -32,7 +32,13 @@ const DIR_KEYS = {
                 id: message.id,
                 x: message.x,
                 y: message.y,
-                moving: common.DEFAULT_MOVING,
+                moving: {
+                    left: false,
+                    right: false,
+                    up: false,
+                    down: false,
+                },
+                style: message.style,
             });
         }
         else if (myId !== undefined && common.isPlayerMoving(message)) {
@@ -75,6 +81,7 @@ const DIR_KEYS = {
             if (!player)
                 return;
             updatePlayer(player, deltaTime);
+            ctx.fillStyle = player.style;
             ctx.fillRect(player.x, player.y, common.PLAYER_SIZE, common.PLAYER_SIZE);
         });
         window.requestAnimationFrame(frame);

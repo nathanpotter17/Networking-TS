@@ -41,7 +41,13 @@ const DIR_KEYS: { [key: string]: Direction } = {
         id: message.id,
         x: message.x,
         y: message.y,
-        moving: common.DEFAULT_MOVING,
+        moving: {
+          left: false,
+          right: false,
+          up: false,
+          down: false,
+        },
+        style: message.style,
       });
     } else if (myId !== undefined && common.isPlayerMoving(message)) {
       console.log("received move event on client:", event.data);
@@ -90,6 +96,7 @@ const DIR_KEYS: { [key: string]: Direction } = {
     players.forEach((player) => {
       if (!player) return;
       updatePlayer(player, deltaTime);
+      ctx.fillStyle = player.style;
       ctx.fillRect(player.x, player.y, common.PLAYER_SIZE, common.PLAYER_SIZE);
     });
 
